@@ -3,11 +3,15 @@ import "./css/Numbers.css";
 import sortingAlgos from "./sortingAlgos";
 
 function Numbers() {
+  // state values
   const [numbers, setNumbers] = useState([]);
   const [numbersTotal, setNumbersTotal] = useState(200);
   const [sortingAlgo, setSortingAlgo] = useState(" ");
-  const [animeSpeed, setAnimeSpeed] = useState(50);
+  const [animeSpeed, setAnimeSpeed] = useState(30);
   const [animeProgressID, setAnimeProgressID] = useState(null);
+  const [state, setState] = useState({
+    numBarsHighlight: [],
+  });
 
   // color codes
   const colorOrange = "rgb(247, 116, 45)";
@@ -35,6 +39,7 @@ function Numbers() {
       newNumbers.push(newNumber);
     }
     setNumbers(newNumbers);
+    setState({ numBarsHighlight: [] });
   };
 
   // function for changing number bar color
@@ -55,28 +60,57 @@ function Numbers() {
     let lastAction = actions[0];
     let intervalID = setInterval(() => {
       let action = actions.shift();
+      console.log(action);
       if (action === undefined) {
         clearInterval(animeProgressID);
+        setState({ numBarsHighlight: [] });
       }
-      for (let idx of lastAction.indices) {
-        setBarColor(idx, colorBlue);
+      if (lastAction !== null) {
+        for (let idx of lastAction.indices) {
+          setBarColor(idx, colorBlue);
+        }
       }
-      let indices = action.indices;
-      for (let idx of indices) {
-        setBarColor(idx, colorOrange);
+      if (action.swap !== undefined) {
+        let indices = action.indices;
+        for (let idx of indices) {
+          setBarColor(idx, colorOrange);
+        }
+        if (action.swap) {
+          let height1 = numbers[indices[0]];
+          let height2 = numbers[indices[1]];
+          setBarHeight(indices[0], height2);
+          setBarHeight(indices[1], height1);
+          numbers[indices[0]] = height2;
+          numbers[indices[1]] = height1;
+        }
+        lastAction = action;
+      } else if (action.numBarsToggle !== undefined) {
+        let indices = action.indices;
+        for (let idx of indices) {
+          toggleBarColor(idx, colorViolet);
+        }
+        lastAction = null;
       }
-      if (action.swap) {
-        let height1 = numbers[indices[0]];
-        let height2 = numbers[indices[1]];
-        setBarHeight(indices[0], height2);
-        setBarHeight(indices[1], height1);
-        numbers[indices[0]] = height2;
-        numbers[indices[1]] = height1;
-      }
-      lastAction = action;
     }, animeSpeed);
     setAnimeProgressID(intervalID);
     document.getElementById("button-start").disabled = true;
+  };
+
+  // function for toggling number bar between blue and target color
+  const toggleBarColor = (idx, targetColor) => {
+    if (state.numBarsHighlight.includes(idx)) {
+      setBarColor(idx, colorBlue);
+      setState((prevState) => {
+        let numBars = [...prevState.numBarsHighlight];
+        numBars.splice(numBars.indexOf(idx), 1, "");
+        return { numBarsHighlight: numBars };
+      });
+    } else {
+      setBarColor(idx, targetColor);
+      setState((prevState) => ({
+        numBarsHighlight: [...prevState.numBarsHighlight, idx],
+      }));
+    }
   };
 
   // reset numbers at start up
@@ -85,8 +119,8 @@ function Numbers() {
   }, []);
 
   useEffect(() => {
-    console.log(sortingAlgo);
-  }, [sortingAlgo]);
+    console.log(state.numBarsHighlight);
+  }, [state]);
 
   return (
     <div id="visualizer-container">
@@ -142,6 +176,20 @@ function Numbers() {
           }}
         >
           Insertion Sort
+        </button>
+        <button
+          className="button"
+          id="button-selectionSort"
+          style={{
+            width: "100px",
+            height: "30px",
+          }}
+          onClick={() => {
+            setSortingAlgo("selectionSort");
+            document.getElementById("button-start").disabled = false;
+          }}
+        >
+          Selection Sort
         </button>
         <button
           className="button"
