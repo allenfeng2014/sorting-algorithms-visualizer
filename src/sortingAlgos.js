@@ -7,7 +7,7 @@ const sortingAlgos = {
     while (swapped) {
       swapped = false;
       for (let i = 0; i < numbers.length - 1; i++) {
-        let numAction = { indices: [i, i + 1], swap: false };
+        let numAction = { swapIndices: [i, i + 1], swap: false };
         let num1 = numbers[i];
         let num2 = numbers[i + 1];
         if (num1 > num2) {
@@ -20,7 +20,7 @@ const sortingAlgos = {
       }
     }
 
-    return numActions;
+    return { numActions };
   },
 
   selectionSort: function (nums) {
@@ -32,12 +32,22 @@ const sortingAlgos = {
       let minIdx = curIdx;
       let minNumber = curNumber;
       for (let idx = curIdx + 1; idx < numbers.length; idx++) {
-        numActions.push({ indices: [curIdx, idx], swap: false });
+        numActions.push({ swapIndices: [curIdx, idx], swap: false });
         if (numbers[idx] < minNumber) {
           if (minIdx !== curIdx) {
-            numActions.push({ numBarsToggle: true, indices: [minIdx] });
+            numActions.push({
+              swapIndices: [curIdx],
+              swap: false,
+              numBarsToggle: true,
+              toggleIndices: [minIdx],
+            });
           }
-          numActions.push({ numBarsToggle: true, indices: [idx] });
+          numActions.push({
+            swapIndices: [curIdx],
+            swap: false,
+            numBarsToggle: true,
+            toggleIndices: [idx],
+          });
           minIdx = idx;
           minNumber = numbers[idx];
         }
@@ -45,11 +55,11 @@ const sortingAlgos = {
       if (minIdx !== curIdx) {
         numbers[curIdx] = numbers[minIdx];
         numbers[minIdx] = curNumber;
-        numActions.push({ indices: [curIdx, minIdx], swap: true });
+        numActions.push({ swapIndices: [curIdx, minIdx], swap: true });
       }
     }
 
-    return numActions;
+    return { numActions };
   },
 
   insertionSort: function (nums) {
@@ -58,23 +68,111 @@ const sortingAlgos = {
 
     for (let curIdx = 1; curIdx < numbers.length; curIdx++) {
       for (let targetIdx = 0; targetIdx < curIdx; targetIdx++) {
-        let numAction = { indices: [curIdx, targetIdx], swap: false };
         let curNumber = numbers[curIdx];
         if (curNumber < numbers[targetIdx]) {
+          numActions.push({
+            toggleIndices: [targetIdx],
+            numBarsToggle: true,
+          });
           for (let idx = curIdx; idx > targetIdx; idx--) {
             numbers[idx] = numbers[idx - 1];
-            numActions.push({ indices: [idx, idx - 1], swap: true });
+            numActions.push({ swapIndices: [idx, idx - 1], swap: true });
           }
           numbers[targetIdx] = curNumber;
           break;
         } else {
-          numActions.push(numAction);
+          numActions.push({ swapIndices: [curIdx, targetIdx], swap: false });
         }
       }
-      curIdx++;
     }
 
-    return numActions;
+    return { numActions };
+  },
+
+  mergeSort: function (
+    numbers,
+    range = [0, numbers.length - 1],
+    numActions = []
+  ) {
+    let numsTotal = numbers.length;
+    let actions = [];
+
+    // base cases
+    if (numsTotal === 1) {
+      actions.push({ set: true, setIndices: [range[0]], setHeights: numbers });
+      return { numsSorted: numbers, range: [range[0]], numActions: [] };
+    }
+    if (numsTotal === 2) {
+      if (numbers[0] > numbers[1]) {
+        numbers = numbers.reverse();
+      }
+      for (let idx = 0; idx < numsTotal; idx++) {
+        actions.push({
+          set: true,
+          setIndices: [range[0] + idx],
+          setHeights: [numbers[idx]],
+        });
+      }
+      return { numsSorted: numbers, range, numActions: actions };
+    }
+
+    // recursively call mergeSort on left and right subarray
+    let medianIdx = Math.floor(numsTotal / 2);
+    let {
+      numsSorted: numsSortedLeft,
+      numActions: actionsLeft,
+    } = this.mergeSort(numbers.slice(0, medianIdx), [
+      range[0],
+      range[0] + medianIdx - 1,
+    ]);
+    let {
+      numsSorted: numsSortedRight,
+      numActions: actionsRight,
+    } = this.mergeSort(numbers.slice(medianIdx), [
+      range[0] + medianIdx,
+      range[1],
+    ]);
+    // store sorting actions returned by mergeSort on subarrays
+    numActions = numActions.concat([...actionsLeft, ...actionsRight]);
+
+    // merge left and right sorted subarray to a single array
+    let numLeftIdx = 0;
+    let numRightIdx = 0;
+    let numsSorted = [];
+    // put numbers from two subarrays into one array
+    while (
+      numLeftIdx < numsSortedLeft.length &&
+      numRightIdx < numsSortedRight.length
+    ) {
+      let numLeft = numsSortedLeft[numLeftIdx];
+      let numRight = numsSortedRight[numRightIdx];
+      if (numLeft < numRight) {
+        numsSorted.push(numLeft);
+        numLeftIdx++;
+      } else {
+        numsSorted.push(numRight);
+        numRightIdx++;
+      }
+    }
+    if (numLeftIdx < numsSortedLeft.length) {
+      for (let idx = numLeftIdx; idx < numsSortedLeft.length; idx++) {
+        numsSorted.push(numsSortedLeft[idx]);
+      }
+    } else {
+      for (let idx = numRightIdx; idx < numsSortedRight.length; idx++) {
+        numsSorted.push(numsSortedRight[idx]);
+      }
+    }
+    // return sorting actions for animation
+    for (let idx = 0; idx < numsSorted.length; idx++) {
+      numActions.push({
+        set: true,
+        setIndices: [range[0] + idx],
+        setHeights: [numsSorted[idx]],
+      });
+    }
+
+    return { numsSorted, range, numActions };
   },
 };
 
