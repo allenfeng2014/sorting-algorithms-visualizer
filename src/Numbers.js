@@ -69,7 +69,7 @@ function Numbers() {
     let lastAction = actions[0];
     animeProgressID = setInterval(() => {
       let action = actions.shift();
-      console.log(action); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!debugger
+      //console.log(action); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!debug
       if (lastAction.swap !== undefined) {
         for (let idx of lastAction.swapIndices) {
           setBarColor(idx, colorBlue);
