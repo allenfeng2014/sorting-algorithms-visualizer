@@ -1,18 +1,51 @@
+* {
+  margin: 0;
+}
+
+.title-container {
+  height: 100px;
+}
+
+.numbers-container {
+  display: block;
+  height: 700px;
+  text-align: center;
+}
 .number-bar {
   display: inline-block;
   margin: 0px 1px;
   width: 5px;
   background-color: rgb(49, 109, 165);
 }
-#numbers-container {
-  height: 900px;
-  text-align: center;
-}
-#buttons-container {
+
+.buttons-container {
   display: block;
-  height: 80px;
-  padding-left: 600px;
+  height: 50px;
+  padding-left: 400px;
 }
-.button {
+.button-misc,
+.button-algo {
+  display: inline-block;
+  width: fit-content;
+  height: 30px;
   margin: 10px 5px 0px 5px;
+}
+.button-algo:hover,
+.button-misc:hover {
+  background-color: rgb(85, 138, 236);
+}
+.button-algo:focus {
+  background-color: rgb(85, 138, 236);
+}
+
+.messages-container {
+  display: block;
+  height: 40px;
+}
+#message-algo {
+  display: inline-block;
+  position: relative;
+  left: 475px;
+  border-left: 2px solid black;
+  padding-left: 20px;
 }

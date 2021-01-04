@@ -20,7 +20,7 @@ const sortingAlgos = {
       }
     }
 
-    return { numActions };
+    return { numsSorted: numbers, numActions };
   },
 
   selectionSort: function (nums) {
@@ -59,7 +59,7 @@ const sortingAlgos = {
       }
     }
 
-    return { numActions };
+    return { numsSorted: numbers, numActions };
   },
 
   insertionSort: function (nums) {
@@ -86,7 +86,7 @@ const sortingAlgos = {
       }
     }
 
-    return { numActions };
+    return { numsSorted: numbers, numActions };
   },
 
   mergeSort: function (

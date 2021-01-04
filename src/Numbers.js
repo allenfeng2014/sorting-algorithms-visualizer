@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import "./css/Numbers.css";
 import sortingAlgos from "./sortingAlgos";
 
@@ -16,51 +16,62 @@ function Numbers() {
   const colorGrey = "rgb(224, 224, 224)";
   const colorViolet = "rgb(220, 58, 252)";
 
-  // function for resetting numbers
-  const resetNumbers = () => {
-    if (animeProgressID !== null) {
-      clearInterval(animeProgressID);
-      animeProgressID = null;
-      for (let i = 0; i < numbersTotal; i++) {
-        let barStyle = document.getElementById(`number${i}`).style;
-        if (barStyle.backgroundColor === colorBlue) {
-          continue;
-        }
-        barStyle.backgroundColor = colorBlue;
+  // design related constants
+  const NUMBER_MAX = 690;
+  const NUMBER_MIN = 10;
+  const CANVAS_HEIGHT = 700;
+
+  const numBars = {
+    // method for changing number bar color
+    setBarColor: function (idx, color) {
+      document.getElementById(`number${idx}`).style.backgroundColor = color;
+    },
+    // method for toggling number bar between blue and target color
+    toggleBarColor: function (idx, targetColor) {
+      if (
+        document.getElementById(`number${idx}`).style.backgroundColor !==
+        colorBlue
+      ) {
+        this.setBarColor(idx, colorBlue);
+      } else {
+        this.setBarColor(idx, targetColor);
       }
-    }
-    document.getElementById("button-start").disabled = true;
+    }, // method for changing number bar height
+    setBarHeight: function (idx, height) {
+      let barStyle = document.getElementById(`number${idx}`).style;
+      barStyle.height = `${height}px`;
+      barStyle.borderTopWidth = `${CANVAS_HEIGHT - height}px`;
+    },
+    // function for resetting numbers
+    resetNumbers: function (returnNumbers = false) {
+      if (animeProgressID !== null) {
+        clearInterval(animeProgressID);
+        animeProgressID = null;
+        for (let i = 0; i < numbersTotal; i++) {
+          let barStyle = document.getElementById(`number${i}`).style;
+          if (barStyle.backgroundColor === colorBlue) {
+            continue;
+          }
+          barStyle.backgroundColor = colorBlue;
+        }
+      }
+      document.getElementById("button-start").disabled = true;
 
-    let newNumbers = [];
-    for (let i = 0; i < numbersTotal; i++) {
-      let newNumber = Math.floor(Math.random() * 795 + 5);
-      newNumbers.push(newNumber);
-    }
-    setNumbers(newNumbers);
-  };
+      let newNumbers = [];
+      for (let i = 0; i < numbersTotal; i++) {
+        let newNumber = Math.floor(Math.random() * 680 + 10);
+        newNumbers.push(newNumber);
+      }
+      setNumbers(newNumbers);
+      buttons.disableAlgoButtons(false);
+      setSortingAlgo("");
 
-  // function for changing number bar color
-  const setBarColor = (idx, color) => {
-    document.getElementById(`number${idx}`).style.backgroundColor = color;
-  };
-
-  // function for toggling number bar between blue and target color
-  const toggleBarColor = (idx, targetColor) => {
-    if (
-      document.getElementById(`number${idx}`).style.backgroundColor !==
-      colorBlue
-    ) {
-      setBarColor(idx, colorBlue);
-    } else {
-      setBarColor(idx, targetColor);
-    }
-  };
-
-  // function for changing number bar height
-  const setBarHeight = (idx, height) => {
-    let barStyle = document.getElementById(`number${idx}`).style;
-    barStyle.height = `${height}px`;
-    barStyle.borderTopWidth = `${900 - height}px`;
+      if (returnNumbers) return newNumbers;
+    },
+    sortNumbers: function (nums) {
+      let { numsSorted } = sortingAlgos.mergeSort(nums);
+      setNumbers(numsSorted);
+    },
   };
 
   // function for visualizing bubble sort
@@ -72,16 +83,17 @@ function Numbers() {
       //console.log(action); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!debug
       if (lastAction.swap !== undefined) {
         for (let idx of lastAction.swapIndices) {
-          setBarColor(idx, colorBlue);
+          numBars.setBarColor(idx, colorBlue);
         }
       } else if (lastAction.set !== undefined) {
         for (let idx of lastAction.setIndices) {
-          setBarColor(idx, colorBlue);
+          numBars.setBarColor(idx, colorBlue);
         }
       }
       if (action === undefined) {
         clearInterval(animeProgressID);
         animeProgressID = null;
+        buttons.disableAlgoButtons(false);
         return;
       }
 
@@ -89,13 +101,13 @@ function Numbers() {
       if (action.swap !== undefined) {
         let indices = action.swapIndices;
         for (let idx of indices) {
-          setBarColor(idx, colorOrange);
+          numBars.setBarColor(idx, colorOrange);
         }
         if (action.swap) {
           let height1 = numbers[indices[0]];
           let height2 = numbers[indices[1]];
-          setBarHeight(indices[0], height2);
-          setBarHeight(indices[1], height1);
+          numBars.setBarHeight(indices[0], height2);
+          numBars.setBarHeight(indices[1], height1);
           numbers[indices[0]] = height2;
           numbers[indices[1]] = height1;
         }
@@ -105,8 +117,8 @@ function Numbers() {
         let indices = action.setIndices;
         let heights = action.setHeights;
         for (let idx = 0; idx < indices.length; idx++) {
-          setBarHeight(indices[idx], heights[idx]);
-          setBarColor(indices[idx], colorOrange);
+          numBars.setBarHeight(indices[idx], heights[idx]);
+          numBars.setBarColor(indices[idx], colorOrange);
           numbers[indices[idx]] = heights[idx];
         }
       }
@@ -114,7 +126,7 @@ function Numbers() {
       if (action.numBarsToggle !== undefined) {
         let indices = action.toggleIndices;
         for (let idx of indices) {
-          toggleBarColor(idx, colorViolet);
+          numBars.toggleBarColor(idx, colorViolet);
         }
       }
       lastAction = action;
@@ -122,14 +134,29 @@ function Numbers() {
     document.getElementById("button-start").disabled = true;
   };
 
+  const buttons = {
+    sortingAlgoNames: [
+      "bubbleSort",
+      "insertionSort",
+      "selectionSort",
+      "mergeSort",
+    ],
+    disableAlgoButtons: function (disable) {
+      this.sortingAlgoNames.forEach((algoName) => {
+        document.getElementById(`button-${algoName}`).disabled = disable;
+      });
+    },
+  };
+
   // reset numbers at start up
   useEffect(() => {
-    resetNumbers();
+    numBars.resetNumbers();
   }, []);
 
   return (
-    <div id="visualizer-container">
-      <div id="numbers-container">
+    <React.Fragment>
+      <div className="title-container"></div>
+      <div className="numbers-container">
         {numbers.map((number, idx) => (
           <span
             className="number-bar"
@@ -137,94 +164,56 @@ function Numbers() {
             key={idx}
             style={{
               height: `${number}px`,
-              borderTop: `${900 - number}px solid ${colorGrey}`,
+              borderTop: `${CANVAS_HEIGHT - number}px solid ${colorGrey}`,
             }}
           ></span>
         ))}
       </div>
-      <div id="buttons-container">
+      <div className="buttons-container">
         <button
-          className="button"
-          id="button-refresh"
-          style={{
-            width: "50px",
-            height: "30px",
+          className="button-misc"
+          id="button-sortedRefresh"
+          onClick={() => {
+            numBars.sortNumbers(numBars.resetNumbers(true));
           }}
-          onClick={resetNumbers}
+        >
+          Sorted Refresh
+        </button>
+        <button
+          className="button-misc"
+          id="button-refresh"
+          onClick={numBars.resetNumbers}
         >
           Refresh
         </button>
+        {buttons.sortingAlgoNames.map((algoName, idx) => (
+          <button
+            className="button-algo"
+            id={`button-${algoName}`}
+            key={idx}
+            onClick={() => {
+              setSortingAlgo(algoName);
+              document.getElementById("button-start").disabled = false;
+            }}
+          >
+            {algoName}
+          </button>
+        ))}
         <button
-          className="button"
-          id="button-bubbleSort"
-          style={{
-            width: "100px",
-            height: "30px",
-          }}
-          onClick={() => {
-            setSortingAlgo("bubbleSort");
-            document.getElementById("button-start").disabled = false;
-          }}
-        >
-          Bubble Sort
-        </button>
-        <button
-          className="button"
-          id="button-insertionSort"
-          style={{
-            width: "100px",
-            height: "30px",
-          }}
-          onClick={() => {
-            setSortingAlgo("insertionSort");
-            document.getElementById("button-start").disabled = false;
-          }}
-        >
-          Insertion Sort
-        </button>
-        <button
-          className="button"
-          id="button-selectionSort"
-          style={{
-            width: "100px",
-            height: "30px",
-          }}
-          onClick={() => {
-            setSortingAlgo("selectionSort");
-            document.getElementById("button-start").disabled = false;
-          }}
-        >
-          Selection Sort
-        </button>
-        <button
-          className="button"
-          id="button-mergeSort"
-          style={{
-            width: "100px",
-            height: "30px",
-          }}
-          onClick={() => {
-            setSortingAlgo("mergeSort");
-            document.getElementById("button-start").disabled = false;
-          }}
-        >
-          Merge Sort
-        </button>
-        <button
-          className="button"
+          className="button-misc"
           id="button-start"
-          style={{
-            width: "50px",
-            height: "30px",
-          }}
           onClick={() => {
+            buttons.disableAlgoButtons(true);
             sortingAnime(numbers, sortingAlgo);
           }}
         >
           Start
         </button>
       </div>
-    </div>
+      <div className="messages-container">
+        <p id="message-algo">Pick an algorithm: {sortingAlgo}</p>
+      </div>
+    </React.Fragment>
   );
 }
 
