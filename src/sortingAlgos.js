@@ -43,6 +43,50 @@ const sortingAlgos = {
     return { numsSorted: nums, numActions };
   },
 
+  oddEvenSort: function (numbers) {
+    let numActions = [];
+    let nums = [...numbers];
+    let prevRunSorted = false;
+    let curRunSorted = false;
+
+    let startIdx = 1;
+    let toggleIndices = [];
+    for (let idx = startIdx; idx < nums.length - 1; idx += 2) {
+      toggleIndices.push(idx);
+    }
+    numActions.push({
+      toggle: true,
+      toggleIndices,
+    });
+    while (!prevRunSorted || !curRunSorted) {
+      prevRunSorted = curRunSorted;
+      curRunSorted = true;
+      toggleIndices = [];
+      for (let idx = startIdx; idx < nums.length - 1; idx += 2) {
+        toggleIndices.push(idx);
+      }
+      numActions.push({
+        toggle: true,
+        toggleIndices,
+      });
+      for (let idx = startIdx; idx < nums.length - 1; idx += 2) {
+        let numAction = { swap: false, swapIndices: [idx, idx + 1] };
+        if (nums[idx] > nums[idx + 1]) {
+          curRunSorted = false;
+          nums[idx] = nums[idx] ^ nums[idx + 1];
+          nums[idx + 1] = nums[idx] ^ nums[idx + 1];
+          nums[idx] = nums[idx] ^ nums[idx + 1];
+          numAction.swap = true;
+        }
+        numActions.push(numAction);
+      }
+      // toggle odd/even mode
+      startIdx = 1 - startIdx;
+    }
+
+    return { numsSorted: nums, numActions };
+  },
+
   selectionSort: function (numbers) {
     let numActions = [];
     let nums = [...numbers];
@@ -190,8 +234,9 @@ const sortingAlgos = {
 
   quickSort: function (nums, range = [0, nums.length - 1], numActions = []) {
     nums = [...nums];
+    let length = nums.length;
     // base cases
-    if (nums.length === 2) {
+    if (length === 2) {
       let numsSorted = [];
       let numAction = {};
       if (nums[0] <= nums[1]) {
@@ -206,7 +251,7 @@ const sortingAlgos = {
     }
 
     // recursive calls
-    let pivotIdx = nums.length - 1;
+    let pivotIdx = length - 1;
     numActions.push({ toggle: true, toggleIndices: [range[0] + pivotIdx] });
     let numLeftIdx = 0;
     let numRightIdx = pivotIdx - 1;
@@ -247,7 +292,7 @@ const sortingAlgos = {
       pivotIdx = numLeftIdx;
     }
     // move pivot number to its correct position so that lefts < pivot < rights
-    for (let idx = nums.length - 1; idx > pivotIdx; idx--) {
+    for (let idx = length - 1; idx > pivotIdx; idx--) {
       nums[idx] = nums[idx - 1];
       numActions.push({
         swap: false,
@@ -267,7 +312,6 @@ const sortingAlgos = {
     });
 
     let numsSortedLeft = nums.slice(0, pivotIdx);
-    let actionsLeft = [];
     if (pivotIdx > 1) {
       let obj = this.quickSort(
         numsSortedLeft,
@@ -277,9 +321,8 @@ const sortingAlgos = {
       numsSortedLeft = obj.numsSorted;
       numActions = obj.numActions;
     }
-    let numsSortedRight = nums.slice(pivotIdx + 1, nums.length);
-    let actionsRight = [];
-    if (pivotIdx < nums.length - 2) {
+    let numsSortedRight = nums.slice(pivotIdx + 1, length);
+    if (pivotIdx < length - 2) {
       let obj = this.quickSort(
         numsSortedRight,
         [range[0] + pivotIdx + 1, range[1]],

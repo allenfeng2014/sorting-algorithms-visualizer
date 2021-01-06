@@ -139,6 +139,7 @@ function Numbers() {
   const buttons = {
     sortingAlgoNames: [
       "bubbleSort",
+      "oddEvenSort",
       "insertionSort",
       "selectionSort",
       "mergeSort",
