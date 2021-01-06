@@ -19,7 +19,7 @@ function Numbers() {
   // design related constants
   const NUMBER_MAX = 690;
   const NUMBER_MIN = 10;
-  const CANVAS_HEIGHT = 700;
+  const CANVAS_HEIGHT = NUMBER_MAX + NUMBER_MIN;
 
   const numBars = {
     // method for changing number bar color
@@ -36,7 +36,8 @@ function Numbers() {
       } else {
         this.setBarColor(idx, targetColor);
       }
-    }, // method for changing number bar height
+    },
+    // method for changing number bar height
     setBarHeight: function (idx, height) {
       let barStyle = document.getElementById(`number${idx}`).style;
       barStyle.height = `${height}px`;
@@ -104,6 +105,7 @@ function Numbers() {
           numBars.setBarColor(idx, colorOrange);
         }
         if (action.swap) {
+          //console.log("swapping ", indices[0], indices[1]);///////debug
           let height1 = numbers[indices[0]];
           let height2 = numbers[indices[1]];
           numBars.setBarHeight(indices[0], height2);
@@ -123,7 +125,7 @@ function Numbers() {
         }
       }
       // highlight target numbers if requested
-      if (action.numBarsToggle !== undefined) {
+      if (action.toggle !== undefined) {
         let indices = action.toggleIndices;
         for (let idx of indices) {
           numBars.toggleBarColor(idx, colorViolet);
@@ -140,6 +142,7 @@ function Numbers() {
       "insertionSort",
       "selectionSort",
       "mergeSort",
+      "quickSort",
     ],
     disableAlgoButtons: function (disable) {
       this.sortingAlgoNames.forEach((algoName) => {
@@ -151,7 +154,7 @@ function Numbers() {
   // reset numbers at start up
   useEffect(() => {
     numBars.resetNumbers();
-  }, []);
+  }, [numbersTotal]);
 
   return (
     <React.Fragment>
@@ -208,6 +211,28 @@ function Numbers() {
           }}
         >
           Start
+        </button>
+        <textarea id="input-animeSpeed" placeholder={animeSpeed}></textarea>
+        <button
+          className="button-misc"
+          id="button-setSpeed"
+          onClick={() => {
+            setAnimeSpeed(document.getElementById("input-animeSpeed").value);
+          }}
+        >
+          SetSpeed
+        </button>
+        <textarea id="input-numbersTotal" placeholder={numbersTotal}></textarea>
+        <button
+          className="button-misc"
+          id="button-setSpeed"
+          onClick={() => {
+            setNumbersTotal(
+              document.getElementById("input-numbersTotal").value
+            );
+          }}
+        >
+          SetNumsTotal
         </button>
       </div>
       <div className="messages-container">

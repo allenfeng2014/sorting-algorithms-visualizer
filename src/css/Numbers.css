@@ -21,7 +21,7 @@
 .buttons-container {
   display: block;
   height: 50px;
-  padding-left: 400px;
+  padding-left: 10%;
 }
 .button-misc,
 .button-algo {
@@ -45,7 +45,7 @@
 #message-algo {
   display: inline-block;
   position: relative;
-  left: 475px;
+  left: 30%;
   border-left: 2px solid black;
   padding-left: 20px;
 }
