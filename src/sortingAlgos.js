@@ -153,6 +153,57 @@ const sortingAlgos = {
     return { numsSorted: nums, numActions };
   },
 
+  cycleSort: function (numbers) {
+    let numActions = [];
+    let nums = [...numbers];
+    let length = nums.length;
+
+    let curIdx = 0;
+    while (curIdx < length - 1) {
+      let curNum = nums[curIdx];
+      let numsLessTotal = -1;
+
+      while (curIdx !== numsLessTotal) {
+        console.log("curIdx ", curIdx, "curNum ", curNum);
+        numsLessTotal = curIdx;
+        for (let idx = curIdx + 1; idx < length; idx++) {
+          numActions.push({ swap: false, swapIndices: [curIdx, idx] });
+          if (nums[idx] < curNum) {
+            numsLessTotal++;
+          }
+        }
+        console.log("correct pos ", numsLessTotal);
+        if (curIdx !== numsLessTotal) {
+          while (curNum === nums[numsLessTotal] && numsLessTotal !== curIdx) {
+            numsLessTotal++;
+            numActions.push({
+              swap: false,
+              swapIndices: [curIdx, numsLessTotal],
+            });
+          }
+          if (curIdx !== numsLessTotal) {
+            curNum = nums[numsLessTotal];
+            nums[numsLessTotal] = nums[curIdx] ^ nums[numsLessTotal];
+            nums[curIdx] = nums[curIdx] ^ nums[numsLessTotal];
+            nums[numsLessTotal] = nums[curIdx] ^ nums[numsLessTotal];
+            numActions.push({
+              toggle: true,
+              toggleIndices: [curIdx, numsLessTotal],
+            });
+            numActions.push({
+              swap: true,
+              swapIndices: [curIdx, numsLessTotal],
+            });
+          }
+        }
+      }
+      nums[curIdx] = curNum;
+      curIdx++;
+    }
+
+    return { numsSorted: nums, numActions };
+  },
+
   mergeSort: function (nums, range = [0, nums.length - 1], numActions = []) {
     let numsTotal = nums.length;
     let actions = [];

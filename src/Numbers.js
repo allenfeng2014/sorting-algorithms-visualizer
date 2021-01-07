@@ -5,9 +5,9 @@ import sortingAlgos from "./sortingAlgos";
 function Numbers() {
   // state values
   const [numbers, setNumbers] = useState([]);
-  const [numbersTotal, setNumbersTotal] = useState(200);
+  const [numsTotal, setNumsTotal] = useState(200);
   const [sortingAlgo, setSortingAlgo] = useState(" ");
-  const [animeSpeed, setAnimeSpeed] = useState(30);
+  const [speed, setSpeed] = useState(30);
   let animeProgressID = null;
 
   // color codes
@@ -48,7 +48,7 @@ function Numbers() {
       if (animeProgressID !== null) {
         clearInterval(animeProgressID);
         animeProgressID = null;
-        for (let i = 0; i < numbersTotal; i++) {
+        for (let i = 0; i < numsTotal; i++) {
           let barStyle = document.getElementById(`number${i}`).style;
           if (barStyle.backgroundColor === colorBlue) {
             continue;
@@ -59,13 +59,14 @@ function Numbers() {
       document.getElementById("button-start").disabled = true;
 
       let newNumbers = [];
-      for (let i = 0; i < numbersTotal; i++) {
+      for (let i = 0; i < numsTotal; i++) {
         let newNumber = Math.floor(Math.random() * 680 + 10);
         newNumbers.push(newNumber);
       }
       setNumbers(newNumbers);
-      buttons.disableAlgoButtons(false);
       setSortingAlgo("");
+      buttons.disableAlgoButtons(false);
+      buttons.disableSettingButtons(false);
 
       if (returnNumbers) return newNumbers;
     },
@@ -75,65 +76,79 @@ function Numbers() {
     },
   };
 
-  // function for visualizing bubble sort
-  const sortingAnime = (nums, algo) => {
-    let { numActions: actions } = sortingAlgos[algo](nums);
-    let lastAction = actions[0];
-    animeProgressID = setInterval(() => {
-      let action = actions.shift();
-      //console.log(action); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!debug
-      if (lastAction.swap !== undefined) {
-        for (let idx of lastAction.swapIndices) {
-          numBars.setBarColor(idx, colorBlue);
+  // functions to start and stop sorting animation
+  const animation = {
+    start: function (nums, algo) {
+      buttons.disableAlgoButtons(true);
+      buttons.disableSettingButtons(true);
+      buttons.reloadSettings();
+      this.sortingAnime(nums, algo);
+    },
+    stop: function () {
+      clearInterval(animeProgressID);
+      animeProgressID = null;
+      setSortingAlgo("");
+      buttons.disableAlgoButtons(false);
+      buttons.disableSettingButtons(false);
+    },
+    // method for visualizing sorting algorithms
+    sortingAnime: function (nums, algo) {
+      let { numActions: actions } = sortingAlgos[algo](nums);
+      let lastAction = actions[0];
+      animeProgressID = setInterval(() => {
+        let action = actions.shift();
+        //console.log(action); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!debug
+        if (lastAction.swap !== undefined) {
+          for (let idx of lastAction.swapIndices) {
+            numBars.setBarColor(idx, colorBlue);
+          }
+        } else if (lastAction.set !== undefined) {
+          for (let idx of lastAction.setIndices) {
+            numBars.setBarColor(idx, colorBlue);
+          }
         }
-      } else if (lastAction.set !== undefined) {
-        for (let idx of lastAction.setIndices) {
-          numBars.setBarColor(idx, colorBlue);
+        // if no further action, stop animation and reset buttons
+        if (action === undefined) {
+          this.stop();
+          return;
         }
-      }
-      if (action === undefined) {
-        clearInterval(animeProgressID);
-        animeProgressID = null;
-        buttons.disableAlgoButtons(false);
-        return;
-      }
-
-      // swap numbers if requested
-      if (action.swap !== undefined) {
-        let indices = action.swapIndices;
-        for (let idx of indices) {
-          numBars.setBarColor(idx, colorOrange);
+        // swap numbers if requested
+        if (action.swap !== undefined) {
+          let indices = action.swapIndices;
+          for (let idx of indices) {
+            numBars.setBarColor(idx, colorOrange);
+          }
+          if (action.swap) {
+            //console.log("swapping ", indices[0], indices[1]);///////debug
+            let height1 = numbers[indices[0]];
+            let height2 = numbers[indices[1]];
+            numBars.setBarHeight(indices[0], height2);
+            numBars.setBarHeight(indices[1], height1);
+            numbers[indices[0]] = height2;
+            numbers[indices[1]] = height1;
+          }
         }
-        if (action.swap) {
-          //console.log("swapping ", indices[0], indices[1]);///////debug
-          let height1 = numbers[indices[0]];
-          let height2 = numbers[indices[1]];
-          numBars.setBarHeight(indices[0], height2);
-          numBars.setBarHeight(indices[1], height1);
-          numbers[indices[0]] = height2;
-          numbers[indices[1]] = height1;
+        // set target numbers if requested
+        if (action.set !== undefined) {
+          let indices = action.setIndices;
+          let heights = action.setHeights;
+          for (let idx = 0; idx < indices.length; idx++) {
+            numBars.setBarHeight(indices[idx], heights[idx]);
+            numBars.setBarColor(indices[idx], colorOrange);
+            numbers[indices[idx]] = heights[idx];
+          }
         }
-      }
-      // set target numbers if requested
-      if (action.set !== undefined) {
-        let indices = action.setIndices;
-        let heights = action.setHeights;
-        for (let idx = 0; idx < indices.length; idx++) {
-          numBars.setBarHeight(indices[idx], heights[idx]);
-          numBars.setBarColor(indices[idx], colorOrange);
-          numbers[indices[idx]] = heights[idx];
+        // highlight target numbers if requested
+        if (action.toggle !== undefined) {
+          let indices = action.toggleIndices;
+          for (let idx of indices) {
+            numBars.toggleBarColor(idx, colorViolet);
+          }
         }
-      }
-      // highlight target numbers if requested
-      if (action.toggle !== undefined) {
-        let indices = action.toggleIndices;
-        for (let idx of indices) {
-          numBars.toggleBarColor(idx, colorViolet);
-        }
-      }
-      lastAction = action;
-    }, animeSpeed);
-    document.getElementById("button-start").disabled = true;
+        lastAction = action;
+      }, speed);
+      document.getElementById("button-start").disabled = true;
+    },
   };
 
   const buttons = {
@@ -142,6 +157,7 @@ function Numbers() {
       "oddEvenSort",
       "insertionSort",
       "selectionSort",
+      "cycleSort",
       "mergeSort",
       "quickSort",
     ],
@@ -150,12 +166,25 @@ function Numbers() {
         document.getElementById(`button-${algoName}`).disabled = disable;
       });
     },
+    settings: ["speed", "numsTotal"],
+    disableSettingButtons: function (disable) {
+      this.settings.forEach((setting) => {
+        let buttonName = `set${setting[0].toUpperCase()}${setting.substr(1)}`;
+        document.getElementById(`button-${buttonName}`).disabled = disable;
+        document.getElementById(`input-${setting}`).disabled = disable;
+      });
+    },
+    reloadSettings: function () {
+      this.settings.forEach((setting) => {
+        document.getElementById(`input-${setting}`).value = "";
+      });
+    },
   };
 
   // reset numbers at start up
   useEffect(() => {
     numBars.resetNumbers();
-  }, [numbersTotal]);
+  }, [numsTotal]);
 
   return (
     <React.Fragment>
@@ -190,6 +219,46 @@ function Numbers() {
         >
           Refresh
         </button>
+        <textarea
+          id="input-speed"
+          placeholder={speed}
+          class="textarea-setting"
+        ></textarea>
+        <button
+          className="button-misc"
+          id="button-setSpeed"
+          onClick={() => {
+            let value = document.getElementById("input-speed").value;
+            if (value > 0) {
+              setSpeed(value);
+            } else {
+              alert("Please enter a number greater than 0");
+            }
+            buttons.reloadSettings();
+          }}
+        >
+          SetSpeed
+        </button>
+        <textarea
+          id="input-numsTotal"
+          placeholder={numsTotal}
+          class="textarea-setting"
+        ></textarea>
+        <button
+          className="button-misc"
+          id="button-setNumsTotal"
+          onClick={() => {
+            let value = document.getElementById("input-numsTotal").value;
+            if (value > 0 && value <= 280) {
+              setNumsTotal(value);
+            } else {
+              alert("Please enter a number between 0 ~ 280");
+            }
+            buttons.reloadSettings();
+          }}
+        >
+          SetNumsTotal
+        </button>
         {buttons.sortingAlgoNames.map((algoName, idx) => (
           <button
             className="button-algo"
@@ -207,33 +276,10 @@ function Numbers() {
           className="button-misc"
           id="button-start"
           onClick={() => {
-            buttons.disableAlgoButtons(true);
-            sortingAnime(numbers, sortingAlgo);
+            animation.start(numbers, sortingAlgo);
           }}
         >
           Start
-        </button>
-        <textarea id="input-animeSpeed" placeholder={animeSpeed}></textarea>
-        <button
-          className="button-misc"
-          id="button-setSpeed"
-          onClick={() => {
-            setAnimeSpeed(document.getElementById("input-animeSpeed").value);
-          }}
-        >
-          SetSpeed
-        </button>
-        <textarea id="input-numbersTotal" placeholder={numbersTotal}></textarea>
-        <button
-          className="button-misc"
-          id="button-setSpeed"
-          onClick={() => {
-            setNumbersTotal(
-              document.getElementById("input-numbersTotal").value
-            );
-          }}
-        >
-          SetNumsTotal
         </button>
       </div>
       <div className="messages-container">

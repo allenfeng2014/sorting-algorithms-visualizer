@@ -25,7 +25,6 @@
 }
 .button-misc,
 .button-algo {
-  display: inline-block;
   width: fit-content;
   height: 30px;
   margin: 10px 5px 0px 5px;
@@ -36,6 +35,13 @@
 }
 .button-algo:focus {
   background-color: rgb(85, 138, 236);
+}
+.textarea-setting {
+  resize: none;
+  height: 20px;
+  width: 60px;
+  position: relative;
+  top: 10px;
 }
 
 .messages-container {
