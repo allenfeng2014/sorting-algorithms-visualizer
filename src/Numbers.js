@@ -211,6 +211,9 @@ function Numbers() {
         >
           Refresh
         </button>
+
+        <span style={{ marginLeft: "20px" }}></span>
+
         <textarea
           id="input-speed"
           placeholder={speed}
@@ -251,6 +254,9 @@ function Numbers() {
         >
           SetNumsTotal
         </button>
+
+        <span style={{ marginLeft: "20px" }}></span>
+
         {buttons.sortingAlgoNames.map((algoName, idx) => (
           <button
             className="button-algo"

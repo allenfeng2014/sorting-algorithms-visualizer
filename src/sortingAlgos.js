@@ -56,13 +56,6 @@ const sortingAlgos = {
 
     let startIdx = 1;
     let toggleIndices = [];
-    for (let idx = startIdx; idx < nums.length - 1; idx += 2) {
-      toggleIndices.push(idx);
-    }
-    numActions.push({
-      toggle: true,
-      toggleIndices,
-    });
     while (!prevRunSorted || !curRunSorted) {
       prevRunSorted = curRunSorted;
       curRunSorted = true;
@@ -290,7 +283,13 @@ const sortingAlgos = {
 
     // base cases
     if (numsTotal === 1) {
-      actions.push({ set: true, setIndices: [range[0]], setHeights: [nums] });
+      actions.push({
+        swap: false,
+        swapIndices: [range[0]],
+        set: true,
+        setIndices: [range[0]],
+        setHeights: [nums],
+      });
       return { numsSorted: nums, range: [range[0]], numActions: [] };
     }
     if (numsTotal === 2) {
@@ -299,8 +298,10 @@ const sortingAlgos = {
       }
       for (let idx = 0; idx < numsTotal; idx++) {
         actions.push({
+          swap: false,
+          swapIndices: [range[0] + idx],
           set: true,
-          setIndices: [range[0] + idx],
+          setIndices: [],
           setHeights: [nums[idx]],
         });
       }
@@ -354,6 +355,8 @@ const sortingAlgos = {
     // return sorting actions for animation
     for (let idx = 0; idx < numsSorted.length; idx++) {
       numActions.push({
+        swap: false,
+        swapIndices: [range[0] + idx],
         set: true,
         setIndices: [range[0] + idx],
         setHeights: [numsSorted[idx]],
