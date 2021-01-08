@@ -134,7 +134,7 @@ function Numbers() {
           let heights = action.setHeights;
           for (let idx = 0; idx < indices.length; idx++) {
             numBars.setBarHeight(indices[idx], heights[idx]);
-            numBars.setBarColor(indices[idx], colorOrange);
+            //numBars.setBarColor(indices[idx], colorOrange);
             numbers[indices[idx]] = heights[idx];
           }
         }
@@ -152,15 +152,7 @@ function Numbers() {
   };
 
   const buttons = {
-    sortingAlgoNames: [
-      "bubbleSort",
-      "oddEvenSort",
-      "insertionSort",
-      "selectionSort",
-      "cycleSort",
-      "mergeSort",
-      "quickSort",
-    ],
+    sortingAlgoNames: Object.keys(sortingAlgos),
     disableAlgoButtons: function (disable) {
       this.sortingAlgoNames.forEach((algoName) => {
         document.getElementById(`button-${algoName}`).disabled = disable;

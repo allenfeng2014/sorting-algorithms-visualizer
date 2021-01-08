@@ -19,6 +19,11 @@ parameters:
             }
 */
 const sortingAlgos = {
+  // bubbleSort: sort numbers by swapping unsorted adjacent numbers
+  //    traverse from the beginning to the end
+  //    check if two adjacent numbers are sorted (num1 <= num2)
+  //    if unsorted, swap them
+  //    keep iterating until no swap is needed for the entire array
   bubbleSort: function (numbers) {
     let numActions = [];
     let nums = [...numbers];
@@ -126,6 +131,12 @@ const sortingAlgos = {
     return { numsSorted: nums, numActions };
   },
 
+  // insertionSort: sort numbers by inserting everyone at its correct index
+  //    traverse array from the beginning to the end
+  //    for each number, traverse from the beginning to find
+  //    the first number which the current number is less than
+  //    then insert the current number at that index
+  //    iterate from idx 0 to length-1
   insertionSort: function (numbers) {
     let numActions = [];
     let nums = [...numbers];
@@ -153,6 +164,9 @@ const sortingAlgos = {
     return { numsSorted: nums, numActions };
   },
 
+  // cycleSort: sort numbers by putting them at their correct indices
+  //    for each number, its correct index = count of numbers less than it
+  //    keep iterating until every number is at its correct index
   cycleSort: function (numbers) {
     let numActions = [];
     let nums = [...numbers];
@@ -199,6 +213,72 @@ const sortingAlgos = {
       }
       nums[curIdx] = curNum;
       curIdx++;
+    }
+
+    return { numsSorted: nums, numActions };
+  },
+
+  // radixSort: sort numbers from LSB to MSB (decimal base)
+  radixSort: function (numbers) {
+    let numActions = [];
+    let nums = [...numbers];
+    let length = nums.length;
+
+    let divisor = 10;
+    let prevDivisor = 1;
+    let digits = [];
+    for (let digit = -9; digit <= 9; digit++) {
+      digits.push(digit);
+    }
+
+    let noMoreDigits = false;
+    while (!noMoreDigits) {
+      noMoreDigits = true;
+
+      // count number of appearance for each digit (-9 ~ 9)
+      let counts = new Array(digits.length).fill(0);
+      for (let idx = 0; idx < length; idx++) {
+        numActions.push({
+          swap: false,
+          swapIndices: [idx],
+        });
+        let digitIdx = digits.indexOf(
+          ((nums[idx] % divisor) - (nums[idx] % prevDivisor)) / prevDivisor
+        );
+        counts[digitIdx]++;
+        if (
+          noMoreDigits &&
+          (nums[idx] % (divisor * 10)) - (nums[idx] % divisor) !== 0
+        ) {
+          noMoreDigits = false;
+        }
+      }
+      // find correct positions of each digit based on total counts of prev digits
+      for (let idx = 1; idx < counts.length; idx++) {
+        counts[idx] += counts[idx - 1];
+      }
+      // put numbers in their correct position in a new array
+      let newNums = [...nums];
+      for (let idx = length - 1; idx >= 0; idx--) {
+        let curNum = nums[idx];
+        let digitIdx = digits.indexOf(
+          ((curNum % divisor) - (curNum % prevDivisor)) / prevDivisor
+        );
+        let targetIdx = counts[digitIdx] - 1;
+        numActions.push({
+          toggle: true,
+          toggleIndices: [targetIdx],
+          set: true,
+          setIndices: [targetIdx],
+          setHeights: [curNum],
+        });
+        newNums[targetIdx] = curNum;
+        counts[digitIdx]--;
+      }
+      // keep going for the next more significant bit
+      nums = newNums;
+      prevDivisor = divisor;
+      divisor *= 10;
     }
 
     return { numsSorted: nums, numActions };
