@@ -1,11 +1,3 @@
-* {
-  margin: 0;
-}
-
-.title-container {
-  height: 100px;
-}
-
 .numbers-container {
   display: block;
   height: 700px;
@@ -21,7 +13,9 @@
 .buttons-container {
   display: block;
   height: 50px;
-  padding-left: 10%;
+  width: 800px;
+  align-items: center;
+  margin: auto;
 }
 .button-misc,
 .button-algo {
@@ -29,11 +23,7 @@
   height: 30px;
   margin: 10px 5px 0px 5px;
 }
-.button-algo:hover,
 .button-misc:hover {
-  background-color: rgb(85, 138, 236);
-}
-.button-algo:focus {
   background-color: rgb(85, 138, 236);
 }
 .textarea-setting {
@@ -43,15 +33,32 @@
   position: relative;
   top: 10px;
 }
+#input-sortingAlgo,
+#input-speed,
+#button-start {
+  margin-left: 10px;
+}
 
 .messages-container {
   display: block;
   height: 40px;
+  width: 800px;
+  margin: auto;
+}
+.message-block {
+  float: left;
+  border-left: 2px solid black;
+  padding-left: 10px;
+}
+#message-refresh {
+  width: 185px;
 }
 #message-algo {
-  display: inline-block;
-  position: relative;
-  left: 30%;
-  border-left: 2px solid black;
-  padding-left: 20px;
+  width: 202px;
+}
+#message-settings {
+  width: 320px;
+}
+#message-start {
+  padding-left: 10px;
 }

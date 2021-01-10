@@ -5,9 +5,9 @@ import sortingAlgos from "./sortingAlgos";
 function Numbers() {
   // state values
   const [numbers, setNumbers] = useState([]);
-  const [numsTotal, setNumsTotal] = useState(200);
-  const [sortingAlgo, setSortingAlgo] = useState(" ");
-  const [speed, setSpeed] = useState(30);
+  const [numsTotal, setNumsTotal] = useState(100);
+  const [sortingAlgo, setSortingAlgo] = useState("");
+  const [speed, setSpeed] = useState(25);
   let animeProgressID = null;
 
   // color codes
@@ -65,7 +65,6 @@ function Numbers() {
       }
       setNumbers(newNumbers);
       setSortingAlgo("");
-      buttons.disableAlgoButtons(false);
       buttons.disableSettingButtons(false);
 
       if (returnNumbers) return newNumbers;
@@ -79,7 +78,7 @@ function Numbers() {
   // functions to start and stop sorting animation
   const animation = {
     start: function (nums, algo) {
-      buttons.disableAlgoButtons(true);
+      //buttons.disableAlgoButtons(true);
       buttons.disableSettingButtons(true);
       buttons.reloadSettings();
       this.sortingAnime(nums, algo);
@@ -88,7 +87,6 @@ function Numbers() {
       clearInterval(animeProgressID);
       animeProgressID = null;
       setSortingAlgo("");
-      buttons.disableAlgoButtons(false);
       buttons.disableSettingButtons(false);
     },
     // method for visualizing sorting algorithms
@@ -153,12 +151,7 @@ function Numbers() {
 
   const buttons = {
     sortingAlgoNames: Object.keys(sortingAlgos),
-    disableAlgoButtons: function (disable) {
-      this.sortingAlgoNames.forEach((algoName) => {
-        document.getElementById(`button-${algoName}`).disabled = disable;
-      });
-    },
-    settings: ["speed", "numsTotal"],
+    settings: ["speed", "numsTotal", "sortingAlgo"],
     disableSettingButtons: function (disable) {
       this.settings.forEach((setting) => {
         let buttonName = `set${setting[0].toUpperCase()}${setting.substr(1)}`;
@@ -168,7 +161,8 @@ function Numbers() {
     },
     reloadSettings: function () {
       this.settings.forEach((setting) => {
-        document.getElementById(`input-${setting}`).value = "";
+        if (setting !== "sortingAlgo")
+          document.getElementById(`input-${setting}`).value = "";
       });
     },
   };
@@ -180,7 +174,6 @@ function Numbers() {
 
   return (
     <React.Fragment>
-      <div className="title-container"></div>
       <div className="numbers-container">
         {numbers.map((number, idx) => (
           <span
@@ -212,12 +205,28 @@ function Numbers() {
           Refresh
         </button>
 
-        <span style={{ marginLeft: "20px" }}></span>
+        <select id="input-sortingAlgo">
+          {buttons.sortingAlgoNames.map((algoName, idx) => (
+            <option value={algoName} key={idx}>
+              {algoName}
+            </option>
+          ))}
+        </select>
+        <button
+          className="button-misc"
+          id="button-setSortingAlgo"
+          onClick={() => {
+            setSortingAlgo(document.getElementById("input-sortingAlgo").value);
+            document.getElementById("button-start").disabled = false;
+          }}
+        >
+          SetAlgorithm
+        </button>
 
         <textarea
           id="input-speed"
-          placeholder={speed}
-          class="textarea-setting"
+          placeholder={`${speed} ms`}
+          className="textarea-setting"
         ></textarea>
         <button
           className="button-misc"
@@ -237,7 +246,7 @@ function Numbers() {
         <textarea
           id="input-numsTotal"
           placeholder={numsTotal}
-          class="textarea-setting"
+          className="textarea-setting"
         ></textarea>
         <button
           className="button-misc"
@@ -255,21 +264,6 @@ function Numbers() {
           SetNumsTotal
         </button>
 
-        <span style={{ marginLeft: "20px" }}></span>
-
-        {buttons.sortingAlgoNames.map((algoName, idx) => (
-          <button
-            className="button-algo"
-            id={`button-${algoName}`}
-            key={idx}
-            onClick={() => {
-              setSortingAlgo(algoName);
-              document.getElementById("button-start").disabled = false;
-            }}
-          >
-            {algoName}
-          </button>
-        ))}
         <button
           className="button-misc"
           id="button-start"
@@ -281,7 +275,27 @@ function Numbers() {
         </button>
       </div>
       <div className="messages-container">
-        <p id="message-algo">Pick an algorithm: {sortingAlgo}</p>
+        <span className="message-block" id="message-refresh">
+          Generate new numbers
+        </span>
+        <span className="message-block" id="message-algo">
+          {sortingAlgo ? (
+            <span>
+              Algorithm:
+              <b>{sortingAlgo}</b>
+            </span>
+          ) : (
+            <b>Pick an algorithm</b>
+          )}
+        </span>
+        <span className="message-block" id="message-settings">
+          Animation settings:
+          <b>{`${speed} ms/frame, ${numsTotal} nums`}</b>
+        </span>
+
+        <span className="message-block" id="message-start">
+          Start
+        </span>
       </div>
     </React.Fragment>
   );

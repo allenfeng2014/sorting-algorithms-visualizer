@@ -1,6 +1,6 @@
 {
-  "short_name": "Sorting Algorithms Visualizer",
-  "name": "Create React App Sample",
+  "short_name": "Sort Algo Visualizer",
+  "name": "Sorting Algorithms Visualizer",
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",

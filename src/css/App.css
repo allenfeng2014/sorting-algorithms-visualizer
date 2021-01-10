@@ -1,0 +1,16 @@
+* {
+  margin: 0;
+}
+
+.title-container {
+  height: 100px;
+}
+.title-h1 {
+  font-size: 30px;
+  text-align: center;
+}
+.title-h2 {
+  font-size: 20px;
+  text-align: right;
+  padding-right: 30px;
+}
