@@ -171,7 +171,6 @@ const sortingAlgos = {
       let numsLessTotal = -1;
 
       while (curIdx !== numsLessTotal) {
-        console.log("curIdx ", curIdx, "curNum ", curNum);
         numsLessTotal = curIdx;
         for (let idx = curIdx + 1; idx < length; idx++) {
           numActions.push({ swap: false, swapIndices: [curIdx, idx] });
@@ -179,7 +178,6 @@ const sortingAlgos = {
             numsLessTotal++;
           }
         }
-        console.log("correct pos ", numsLessTotal);
         if (curIdx !== numsLessTotal) {
           while (curNum === nums[numsLessTotal] && numsLessTotal !== curIdx) {
             numsLessTotal++;
