@@ -205,24 +205,6 @@ function Numbers() {
           Refresh
         </button>
 
-        <select id="input-sortingAlgo">
-          {buttons.sortingAlgoNames.map((algoName, idx) => (
-            <option value={algoName} key={idx}>
-              {algoName}
-            </option>
-          ))}
-        </select>
-        <button
-          className="button-misc"
-          id="button-setSortingAlgo"
-          onClick={() => {
-            setSortingAlgo(document.getElementById("input-sortingAlgo").value);
-            document.getElementById("button-start").disabled = false;
-          }}
-        >
-          SetAlgorithm
-        </button>
-
         <textarea
           id="input-speed"
           placeholder={`${speed} ms`}
@@ -264,6 +246,24 @@ function Numbers() {
           SetNumsTotal
         </button>
 
+        <select id="input-sortingAlgo">
+          {buttons.sortingAlgoNames.map((algoName, idx) => (
+            <option value={algoName} key={idx}>
+              {algoName}
+            </option>
+          ))}
+        </select>
+        <button
+          className="button-misc"
+          id="button-setSortingAlgo"
+          onClick={() => {
+            setSortingAlgo(document.getElementById("input-sortingAlgo").value);
+            document.getElementById("button-start").disabled = false;
+          }}
+        >
+          SetAlgorithm
+        </button>
+
         <button
           className="button-misc"
           id="button-start"
@@ -278,6 +278,11 @@ function Numbers() {
         <span className="message-block" id="message-refresh">
           Generate new numbers
         </span>
+
+        <span className="message-block" id="message-settings">
+          Animation settings:
+          <b>{`${speed} ms/frame, ${numsTotal} nums`}</b>
+        </span>
         <span className="message-block" id="message-algo">
           {sortingAlgo ? (
             <span>
@@ -287,10 +292,6 @@ function Numbers() {
           ) : (
             <b>Pick an algorithm</b>
           )}
-        </span>
-        <span className="message-block" id="message-settings">
-          Animation settings:
-          <b>{`${speed} ms/frame, ${numsTotal} nums`}</b>
         </span>
 
         <span className="message-block" id="message-start">
