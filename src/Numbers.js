@@ -290,7 +290,7 @@ function Numbers() {
               <b>{sortingAlgo}</b>
             </span>
           ) : (
-            <b>Pick an algorithm</b>
+            <b>Pick an algorithm !!!!!!</b>
           )}
         </span>
 
