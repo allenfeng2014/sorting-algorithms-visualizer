@@ -1,0 +1,24 @@
+.messages-container {
+  display: block;
+  height: 40px;
+  width: 800px;
+  margin: auto;
+  justify-content: center;
+}
+.message-block {
+  float: left;
+  border-left: 2px solid black;
+  padding-left: 10px;
+}
+#message-refresh {
+  width: 185px;
+}
+#message-algo {
+  width: 202px;
+}
+#message-settings {
+  width: 320px;
+}
+#message-start {
+  padding-left: 10px;
+}

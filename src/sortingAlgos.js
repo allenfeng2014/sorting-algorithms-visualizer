@@ -1,7 +1,7 @@
 /*
 sorting algorithms included:
-  bubbleSort, selectionSort, insertionSort,
-  mergeSort, quickSort, !!!!!radixSort
+  bubbleSort, oddEvenSort, selectionSort, insertionSort,
+  mergeSort, quickSort, cycleSort, radixSort
 
 parameters:
   numbers: array of unsorted numbers

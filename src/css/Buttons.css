@@ -1,0 +1,28 @@
+.buttons-container {
+  display: block;
+  height: 50px;
+  width: 800px;
+  align-items: center;
+  margin: auto;
+}
+.button-misc,
+.button-algo {
+  width: fit-content;
+  height: 30px;
+  margin: 10px 5px 0px 5px;
+}
+.button-misc:hover {
+  background-color: rgb(85, 138, 236);
+}
+.textarea-setting {
+  resize: none;
+  height: 20px;
+  width: 60px;
+  position: relative;
+  top: 10px;
+}
+#input-sortingAlgo,
+#input-speed,
+#button-start {
+  margin-left: 10px;
+}
