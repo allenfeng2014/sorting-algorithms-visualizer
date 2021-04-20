@@ -18,10 +18,13 @@ const numBars = {
   },
   setBarHeight: function (idx, height) {
     let barStyle = document.querySelector(`#number${idx}`).style;
+    //console.log("target bar idx", idx);
+    //console.log("target bar original height", barStyle.height);
+    //console.log("target bar target height", height);
     barStyle.height = `${height}px`;
     barStyle.borderTopWidth = `${CANVAS_HEIGHT - height}px`;
   },
-  resetNumbers: function (returnNumbers = false, numsTotal = 100) {
+  resetNumbers: function (numsTotal) {
     let numBarElements = document.querySelectorAll(".number-bar");
     numBarElements.forEach((numBar) => {
       if (numBar.style.backgroundColor !== colorBlue) {
@@ -41,7 +44,7 @@ const numBars = {
     //setSortingAlgo("")
     // buttons.disableSettingButtons(false)
 
-    return returnNumbers ? newNumbers : null;
+    return newNumbers;
   },
 };
 

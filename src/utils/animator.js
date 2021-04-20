@@ -1,48 +1,48 @@
 import numBars from "./numBars";
 import buttons from "./buttons";
-import sortingAlgos from "../sortingAlgos";
+import sortingAlgos from "./sortingAlgos";
 import numBarsConstants from "../constants/numBarsConstants";
 
 class Animator {
   constructor() {
-    this.animeProgressID = null;
+    this.animatorOn = false;
     this.constants = numBarsConstants;
     this.numbers = [];
     this.speed = 25;
   }
 
-  setAnimeProgressID = (newProgressID) => {
-    this.animeProgressID = newProgressID;
+  // setter methods
+  setAnimatorOn = (animatorOn) => {
+    this.animatorOn = animatorOn;
   };
-
   setNumbers = (newNumbers) => {
     this.numbers = newNumbers;
   };
-
   setSpeed = (newSpeed) => {
     this.speed = newSpeed;
   };
 
-  start = (algo) => {
+  // animator control functions
+  start = async (algo) => {
     buttons.disableSettingButtons(true);
     buttons.reloadSettings();
-    this.sortingAnime(algo);
+    this.setAnimatorOn(true);
+    let animator = this.animator();
+    await sortingAlgos[algo]({ nums: this.numbers, animator });
+    // finish animation by giving a null as final action
+    animator(null);
   };
-
   stop = () => {
-    if (this.animeProgressID) {
-      clearInterval(this.animeProgressID);
-      this.setAnimeProgressID(null);
-    }
+    this.setAnimatorOn(false);
     // setSortingAlgo("")
     buttons.disableSettingButtons(false);
   };
 
-  sortingAnime = (algo) => {
-    let { numActions: actions } = sortingAlgos[algo](this.numbers);
-    let lastAction = actions[0];
-    let newProgressID = setInterval(() => {
-      let action = actions.shift();
+  // animator function, use closure to remember lastAction state
+  animator = () => {
+    let lastAction = {};
+
+    return async (action) => {
       if (lastAction.swap !== undefined) {
         for (let idx of lastAction.swapIndices) {
           numBars.setBarColor(idx, this.constants.colorBlue);
@@ -53,7 +53,7 @@ class Animator {
         }
       }
       // if no further action, stop animation and reset buttons
-      if (action === undefined) {
+      if (action === null) {
         this.stop();
         return;
       }
@@ -90,9 +90,14 @@ class Animator {
         }
       }
       lastAction = action;
-    }, this.speed);
-    this.setAnimeProgressID(newProgressID);
-    document.querySelector("#button-start").disabled = true;
+
+      // return a promise that resolves after some time
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(this.animatorOn);
+        }, this.speed);
+      });
+    };
   };
 }
 

@@ -21,11 +21,11 @@ parameters:
 const sortingAlgos = {
   // bubbleSort: sort numbers by swapping unsorted adjacent numbers
   //    traverse from the beginning to the end
-  //    check if two adjacent numbers are sorted (num1 <= num2)
-  //    if unsorted, swap them
-  //    keep iterating until no swap is needed for the entire array
-  bubbleSort: function (numbers) {
-    let numActions = [];
+  //    check if two adjacent numbers are sorted (num1 <= num2).
+  //    if unsorted, swap them.
+  //    keep iterating until no swap is needed for the entire array.
+  bubbleSort: async function ({ nums: numbers, animator }) {
+    let animatorOn = true;
     let nums = [...numbers];
     let swapped = true;
 
@@ -41,15 +41,18 @@ const sortingAlgos = {
           swapped = true;
           numAction.swap = true;
         }
-        numActions.push(numAction);
+        // call async animator and wait for its completion
+        animatorOn = await animator(numAction);
+        // stop if animator is refreshed by user
+        if (!animatorOn) return;
       }
     }
 
-    return { numsSorted: nums, numActions };
+    return;
   },
 
-  oddEvenSort: function (numbers) {
-    let numActions = [];
+  oddEvenSort: async function ({ nums: numbers, animator }) {
+    let animatorOn = true;
     let nums = [...numbers];
     let prevRunSorted = false;
     let curRunSorted = false;
@@ -63,10 +66,11 @@ const sortingAlgos = {
       for (let idx = startIdx; idx < nums.length - 1; idx += 2) {
         toggleIndices.push(idx);
       }
-      numActions.push({
-        toggle: true,
-        toggleIndices,
-      });
+
+      // call animator, interrupt if requested
+      animatorOn = await animator({ toggle: true, toggleIndices });
+      if (!animatorOn) return;
+
       for (let idx = startIdx; idx < nums.length - 1; idx += 2) {
         let numAction = { swap: false, swapIndices: [idx, idx + 1] };
         if (nums[idx] > nums[idx + 1]) {
@@ -76,17 +80,19 @@ const sortingAlgos = {
           nums[idx] = nums[idx] ^ nums[idx + 1];
           numAction.swap = true;
         }
-        numActions.push(numAction);
+        // call animator, interrupt if requested
+        animatorOn = await animator(numAction);
+        if (!animatorOn) return;
       }
       // toggle odd/even mode
       startIdx = 1 - startIdx;
     }
 
-    return { numsSorted: nums, numActions };
+    return;
   },
 
-  selectionSort: function (numbers) {
-    let numActions = [];
+  selectionSort: async function ({ nums: numbers, animator }) {
+    let animatorOn = true;
     let nums = [...numbers];
 
     for (let curIdx = 0; curIdx < nums.length - 1; curIdx++) {
@@ -94,22 +100,33 @@ const sortingAlgos = {
       let minIdx = curIdx;
       let minNumber = curNumber;
       for (let idx = curIdx + 1; idx < nums.length; idx++) {
-        numActions.push({ swap: false, swapIndices: [curIdx, idx] });
+        // call animator, interrupt if requested
+        animatorOn = await animator({
+          swap: false,
+          swapIndices: [curIdx, idx],
+        });
+        if (!animatorOn) return;
+
         if (nums[idx] < minNumber) {
           if (minIdx !== curIdx) {
-            numActions.push({
+            // call animator, interrupt if requested
+            animatorOn = await animator({
               swap: false,
               swapIndices: [curIdx],
               toggle: true,
               toggleIndices: [minIdx],
             });
+            if (!animatorOn) return;
           }
-          numActions.push({
+          // call animator, interrupt if requested
+          animatorOn = await animator({
             swap: false,
             swapIndices: [curIdx],
             toggle: true,
             toggleIndices: [idx],
           });
+          if (!animatorOn) return;
+
           minIdx = idx;
           minNumber = nums[idx];
         }
@@ -117,11 +134,16 @@ const sortingAlgos = {
       if (minIdx !== curIdx) {
         nums[curIdx] = nums[minIdx];
         nums[minIdx] = curNumber;
-        numActions.push({ swap: true, swapIndices: [curIdx, minIdx] });
+        // call animator, interrupt if requested
+        animatorOn = await animator({
+          swap: true,
+          swapIndices: [curIdx, minIdx],
+        });
+        if (!animatorOn) return;
       }
     }
 
-    return { numsSorted: nums, numActions };
+    return;
   },
 
   // insertionSort: sort numbers by inserting everyone at its correct index
@@ -129,51 +151,70 @@ const sortingAlgos = {
   //    for each number, traverse from the beginning to find
   //    the first number which the current number is less than
   //    then insert the current number at that index
-  //    iterate from idx 0 to length-1
-  insertionSort: function (numbers) {
-    let numActions = [];
+  //    iterate from idx 0 to numsTotal-1
+  insertionSort: async function ({ nums: numbers, animator }) {
+    let animatorOn = true;
     let nums = [...numbers];
 
     for (let curIdx = 1; curIdx < nums.length; curIdx++) {
       for (let targetIdx = 0; targetIdx < curIdx; targetIdx++) {
         let curNumber = nums[curIdx];
         if (curNumber < nums[targetIdx]) {
-          numActions.push({
+          // call animator, interrupt if requested
+          animatorOn = await animator({
             toggle: true,
             toggleIndices: [targetIdx],
           });
+          if (!animatorOn) return;
+
           for (let idx = curIdx; idx > targetIdx; idx--) {
             nums[idx] = nums[idx - 1];
-            numActions.push({ swap: true, swapIndices: [idx, idx - 1] });
+            // call animator, interrupt if requested
+            animatorOn = await animator({
+              swap: true,
+              swapIndices: [idx, idx - 1],
+            });
+            if (!animatorOn) return;
           }
           nums[targetIdx] = curNumber;
           break;
         } else {
-          numActions.push({ swap: false, swapIndices: [curIdx, targetIdx] });
+          // call animator, interrupt if requested
+          animatorOn = await animator({
+            swap: false,
+            swapIndices: [curIdx, targetIdx],
+          });
+          if (!animatorOn) return;
         }
       }
     }
 
-    return { numsSorted: nums, numActions };
+    return;
   },
 
   // cycleSort: sort numbers by putting them at their correct indices
   //    for each number, its correct index = count of numbers less than it
   //    keep iterating until every number is at its correct index
-  cycleSort: function (numbers) {
-    let numActions = [];
+  cycleSort: async function ({ nums: numbers, animator }) {
+    let animatorOn = true;
     let nums = [...numbers];
-    let length = nums.length;
+    let numsTotal = nums.length;
 
     let curIdx = 0;
-    while (curIdx < length - 1) {
+    while (curIdx < numsTotal - 1) {
       let curNum = nums[curIdx];
       let numsLessTotal = -1;
 
       while (curIdx !== numsLessTotal) {
         numsLessTotal = curIdx;
-        for (let idx = curIdx + 1; idx < length; idx++) {
-          numActions.push({ swap: false, swapIndices: [curIdx, idx] });
+        for (let idx = curIdx + 1; idx < numsTotal; idx++) {
+          // call animator, interrupt if requested
+          animatorOn = await animator({
+            swap: false,
+            swapIndices: [curIdx, idx],
+          });
+          if (!animatorOn) return;
+
           if (nums[idx] < curNum) {
             numsLessTotal++;
           }
@@ -181,24 +222,28 @@ const sortingAlgos = {
         if (curIdx !== numsLessTotal) {
           while (curNum === nums[numsLessTotal] && numsLessTotal !== curIdx) {
             numsLessTotal++;
-            numActions.push({
+            // call animator, interrupt if requested
+            animatorOn = await animator({
               swap: false,
               swapIndices: [curIdx, numsLessTotal],
             });
+            if (!animatorOn) return;
           }
           if (curIdx !== numsLessTotal) {
             curNum = nums[numsLessTotal];
             nums[numsLessTotal] = nums[curIdx] ^ nums[numsLessTotal];
             nums[curIdx] = nums[curIdx] ^ nums[numsLessTotal];
             nums[numsLessTotal] = nums[curIdx] ^ nums[numsLessTotal];
-            numActions.push({
+            // call animator, interrupt if requested
+            animatorOn = await animator({
               toggle: true,
               toggleIndices: [curIdx, numsLessTotal],
             });
-            numActions.push({
+            animatorOn = await animator({
               swap: true,
               swapIndices: [curIdx, numsLessTotal],
             });
+            if (!animatorOn) return;
           }
         }
       }
@@ -206,14 +251,14 @@ const sortingAlgos = {
       curIdx++;
     }
 
-    return { numsSorted: nums, numActions };
+    return;
   },
 
   // radixSort: sort numbers from LSB to MSB (decimal base)
-  radixSort: function (numbers) {
-    let numActions = [];
+  radixSort: async function ({ nums: numbers, animator }) {
+    let animatorOn = true;
     let nums = [...numbers];
-    let length = nums.length;
+    let numsTotal = nums.length;
 
     let divisor = 10;
     let prevDivisor = 1;
@@ -228,11 +273,14 @@ const sortingAlgos = {
 
       // count number of appearance for each digit (-9 ~ 9)
       let counts = new Array(digits.length).fill(0);
-      for (let idx = 0; idx < length; idx++) {
-        numActions.push({
+      for (let idx = 0; idx < numsTotal; idx++) {
+        // call animator, interrupt if requested
+        animatorOn = await animator({
           swap: false,
           swapIndices: [idx],
         });
+        if (!animatorOn) return;
+
         let digitIdx = digits.indexOf(
           ((nums[idx] % divisor) - (nums[idx] % prevDivisor)) / prevDivisor
         );
@@ -250,19 +298,22 @@ const sortingAlgos = {
       }
       // put numbers in their correct position in a new array
       let newNums = [...nums];
-      for (let idx = length - 1; idx >= 0; idx--) {
+      for (let idx = numsTotal - 1; idx >= 0; idx--) {
         let curNum = nums[idx];
         let digitIdx = digits.indexOf(
           ((curNum % divisor) - (curNum % prevDivisor)) / prevDivisor
         );
         let targetIdx = counts[digitIdx] - 1;
-        numActions.push({
+        // call animator, interrupt if requested
+        animatorOn = await animator({
           toggle: true,
           toggleIndices: [targetIdx],
           set: true,
           setIndices: [targetIdx],
           setHeights: [curNum],
         });
+        if (!animatorOn) return;
+
         newNums[targetIdx] = curNum;
         counts[digitIdx]--;
       }
@@ -272,103 +323,108 @@ const sortingAlgos = {
       divisor *= 10;
     }
 
-    return { numsSorted: nums, numActions };
+    return;
   },
 
-  mergeSort: function (nums, range = [0, nums.length - 1], numActions = []) {
+  // mergeSort
+  mergeSort: async function ({ nums, range, animator, animatorOn }) {
     let numsTotal = nums.length;
-    let actions = [];
+    if (range === undefined) {
+      range = [0, numsTotal - 1];
+    }
+    if (animatorOn === undefined) {
+      animatorOn = true;
+    }
 
     // base cases
     if (numsTotal === 1) {
-      actions.push({
+      // call animator, interrupt if requested
+      animatorOn = await animator({
         swap: false,
         swapIndices: [range[0]],
         set: true,
         setIndices: [range[0]],
-        setHeights: [nums],
+        setHeights: [nums[0]],
       });
-      return { numsSorted: nums, range: [range[0]], numActions: [] };
+
+      return { numsSorted: nums, range, animatorOn };
     }
     if (numsTotal === 2) {
+      let swap = false;
       if (nums[0] > nums[1]) {
-        nums = nums.reverse();
+        nums.reverse();
+        swap = true;
       }
-      for (let idx = 0; idx < numsTotal; idx++) {
-        actions.push({
-          swap: false,
-          swapIndices: [range[0] + idx],
-          set: true,
-          setIndices: [],
-          setHeights: [nums[idx]],
-        });
-      }
-      return { numsSorted: nums, range, numActions: actions };
+      // call animator, interrupt if requested
+      animatorOn = await animator({
+        swap,
+        swapIndices: range,
+      });
+
+      return { numsSorted: nums, range, animatorOn };
     }
 
     // recursively call mergeSort on left and right subarray
     let middleIdx = Math.floor(numsTotal / 2);
-    let {
-      numsSorted: numsSortedLeft,
-      numActions: actionsLeft,
-    } = this.mergeSort(nums.slice(0, middleIdx), [
-      range[0],
-      range[0] + middleIdx - 1,
-    ]);
-    let {
-      numsSorted: numsSortedRight,
-      numActions: actionsRight,
-    } = this.mergeSort(nums.slice(middleIdx), [range[0] + middleIdx, range[1]]);
-    // store sorting actions returned by mergeSort on subarrays
-    numActions = numActions.concat([...actionsLeft, ...actionsRight]);
+    let resultLeft = await this.mergeSort({
+      nums: nums.slice(0, middleIdx),
+      range: [range[0], range[0] + middleIdx - 1],
+      animator,
+    });
+    if (!resultLeft.animatorOn) return { animatorOn: resultLeft.animatorOn };
+
+    let resultRight = await this.mergeSort({
+      nums: nums.slice(middleIdx),
+      range: [range[0] + middleIdx, range[1]],
+      animator,
+    });
+    if (!resultRight.animatorOn) return { animatorOn: resultRight.animatorOn };
 
     // merge left and right sorted subarray to a single array
-    let numLeftIdx = 0;
-    let numRightIdx = 0;
+    let numsSortedLeft = resultLeft.numsSorted;
+    let numsSortedRight = resultRight.numsSorted;
     let numsSorted = [];
-    // put nums from two subarrays into one array
-    while (
-      numLeftIdx < numsSortedLeft.length &&
-      numRightIdx < numsSortedRight.length
-    ) {
-      let numLeft = numsSortedLeft[numLeftIdx];
-      let numRight = numsSortedRight[numRightIdx];
-      if (numLeft < numRight) {
-        numsSorted.push(numLeft);
-        numLeftIdx++;
+    while (numsSortedLeft.length > 0 && numsSortedRight.length > 0) {
+      if (numsSortedLeft[0] < numsSortedRight[0]) {
+        numsSorted.push(numsSortedLeft.shift());
       } else {
-        numsSorted.push(numRight);
-        numRightIdx++;
+        numsSorted.push(numsSortedRight.shift());
       }
     }
-    if (numLeftIdx < numsSortedLeft.length) {
-      for (let idx = numLeftIdx; idx < numsSortedLeft.length; idx++) {
-        numsSorted.push(numsSortedLeft[idx]);
-      }
-    } else {
-      for (let idx = numRightIdx; idx < numsSortedRight.length; idx++) {
-        numsSorted.push(numsSortedRight[idx]);
-      }
-    }
-    // return sorting actions for animation
+    numsSorted = [...numsSorted, ...numsSortedLeft, ...numsSortedRight];
+
+    // sorting animation
     for (let idx = 0; idx < numsSorted.length; idx++) {
-      numActions.push({
+      // call animator, interrupt if requested
+      animatorOn = await animator({
         swap: false,
         swapIndices: [range[0] + idx],
         set: true,
         setIndices: [range[0] + idx],
         setHeights: [numsSorted[idx]],
       });
+      if (!animatorOn) break;
     }
 
-    return { numsSorted, range, numActions };
+    return { numsSorted, range, animatorOn };
   },
 
-  quickSort: function (nums, range = [0, nums.length - 1], numActions = []) {
-    nums = [...nums];
-    let length = nums.length;
-    // base cases
-    if (length === 2) {
+  // quickSort
+  quickSort: async function ({ nums: numbers, range, animator, animatorOn }) {
+    let nums = [...numbers];
+    let numsTotal = nums.length;
+    if (range === undefined) {
+      range = [0, numsTotal - 1];
+    }
+    if (animatorOn === undefined) {
+      animatorOn = true;
+    }
+
+    // base case
+    if (numsTotal < 2) {
+      return { numsSorted: nums, range, animatorOn };
+    }
+    if (numsTotal === 2) {
       let numsSorted = [];
       let numAction = {};
       if (nums[0] <= nums[1]) {
@@ -378,19 +434,29 @@ const sortingAlgos = {
         numsSorted = nums.reverse();
         numAction = { swap: true, swapIndices: [range[0], range[1]] };
       }
-      numActions.push(numAction);
-      return { numsSorted, range, numActions };
+      // call animator, interrupt if requested
+      animatorOn = await animator(numAction);
+
+      return { numsSorted, range, animatorOn };
     }
 
     // recursive calls
-    let pivotIdx = length - 1;
-    numActions.push({ toggle: true, toggleIndices: [range[0] + pivotIdx] });
+    let pivotIdx = numsTotal - 1;
+    // call animator, interrupt if requested
+    animatorOn = await animator({
+      toggle: true,
+      toggleIndices: [range[0] + pivotIdx],
+    });
+    if (!animatorOn) return { animatorOn };
+
     let numLeftIdx = 0;
     let numRightIdx = pivotIdx - 1;
-    numActions.push({
+    // call animator, interrupt if requested
+    animatorOn = await animator({
       swap: false,
       swapIndices: [range[0] + numLeftIdx, range[0] + numRightIdx],
     });
+    if (!animatorOn) return { animatorOn };
 
     while (numLeftIdx < numRightIdx) {
       let numAction = {
@@ -414,7 +480,9 @@ const sortingAlgos = {
         nums[numLeftIdx] = nums[numLeftIdx] ^ nums[numRightIdx];
         numAction.swap = true;
       }
-      numActions.push(numAction);
+      // call animator, interrupt if requested
+      animatorOn = await animator(numAction);
+      if (!animatorOn) return { animatorOn };
     }
     // check the number at idx = numLeftIdx = numRightIdx
     let pivotNum = nums[pivotIdx];
@@ -424,51 +492,54 @@ const sortingAlgos = {
       pivotIdx = numLeftIdx;
     }
     // move pivot number to its correct position so that lefts < pivot < rights
-    for (let idx = length - 1; idx > pivotIdx; idx--) {
+    for (let idx = numsTotal - 1; idx > pivotIdx; idx--) {
       nums[idx] = nums[idx - 1];
-      numActions.push({
+      // call animator, interrupt if requested
+      animatorOn = await animator({
         swap: false,
         swapIndices: [range[0] + idx - 1, range[0] + idx],
         set: true,
         setIndices: [range[0] + idx],
         setHeights: [nums[idx - 1]],
       });
+      if (!animatorOn) return { animatorOn };
     }
     nums[pivotIdx] = pivotNum;
-    numActions.push({
+    // call animator, interrupt if requested
+    animatorOn = await animator({
       toggle: true,
       toggleIndices: [range[0] + pivotIdx],
       set: true,
       setIndices: [range[0] + pivotIdx],
       setHeights: [pivotNum],
     });
+    if (!animatorOn) return { animatorOn };
 
-    let numsSortedLeft = nums.slice(0, pivotIdx);
-    if (pivotIdx > 1) {
-      let obj = this.quickSort(
-        numsSortedLeft,
-        [range[0], range[0] + pivotIdx - 1],
-        numActions
-      );
-      numsSortedLeft = obj.numsSorted;
-      numActions = obj.numActions;
-    }
-    let numsSortedRight = nums.slice(pivotIdx + 1, length);
-    if (pivotIdx < length - 2) {
-      let obj = this.quickSort(
-        numsSortedRight,
-        [range[0] + pivotIdx + 1, range[1]],
-        numActions
-      );
-      numsSortedRight = obj.numsSorted;
-      numActions = obj.numActions;
-    }
+    // recusive calls on left and right subarrays
+    let resultLeft = await this.quickSort({
+      nums: nums.slice(0, pivotIdx),
+      range: [range[0], range[0] + pivotIdx - 1],
+      animator,
+      animatorOn,
+    });
+    if (!resultLeft.animatorOn) return { animatorOn };
+    let numsSortedLeft = resultLeft.numsSorted;
+
+    let resultRight = await this.quickSort({
+      nums: nums.slice(pivotIdx + 1, numsTotal),
+      range: [range[0] + pivotIdx + 1, range[1]],
+      animator,
+      animatorOn,
+    });
+    if (!resultRight.animatorOn) return { animatorOn };
+    let numsSortedRight = resultRight.numsSorted;
+
     nums = [...numsSortedLeft, pivotNum, ...numsSortedRight];
 
     return {
       numsSorted: nums,
       range,
-      numActions,
+      animatorOn,
     };
   },
 };

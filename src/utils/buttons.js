@@ -1,4 +1,4 @@
-import sortingAlgos from "../sortingAlgos";
+import sortingAlgos from "./sortingAlgos";
 
 const buttons = {
   sortingAlgoNames: Object.keys(sortingAlgos),

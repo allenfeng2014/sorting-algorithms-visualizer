@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "./css/App.css";
+// components
 import Numbers from "./components/Numbers";
 import Buttons from "./components/Buttons";
 import Messages from "./components/Messages";
-import numBarsConstants from "./constants/numBarsConstants";
+// utils
 import buttons from "./utils/buttons";
 import numBars from "./utils/numBars";
 import Animator from "./utils/animator";
@@ -15,30 +16,27 @@ function App() {
   const [sortingAlgo, setSortingAlgo] = useState("");
   const [speed, setSpeed] = useState(25);
 
-  // imported color codes and design related constants
-  const { colorGrey, CANVAS_HEIGHT } = numBarsConstants;
-
   // animator object
   const animator = new Animator();
 
   // reset everything at start up and whenever numsTotal changes
   useEffect(() => {
-    let newNumbers = numBars.resetNumbers(true, numsTotal);
+    let newNumbers = numBars.resetNumbers(numsTotal);
     setNumbers(newNumbers);
     setSortingAlgo("");
     buttons.disableSettingButtons(false);
   }, [numsTotal]);
 
+  // event handlers
   const handlers = {
     refresh: (sorted = false) => {
-      let newNumbers = numBars.resetNumbers(true);
+      let newNumbers = numBars.resetNumbers(numsTotal);
       if (sorted) {
         newNumbers.sort((a, b) => a - b);
       }
       setNumbers(newNumbers);
       animator.stop();
       animator.setNumbers(newNumbers);
-      animator.setSpeed(speed);
       setSortingAlgo("");
       buttons.disableSettingButtons(false);
     },
@@ -66,6 +64,7 @@ function App() {
       document.querySelector("#button-start").disabled = false;
     },
     start: () => {
+      animator.setSpeed(speed);
       animator.setNumbers(numbers);
       animator.start(sortingAlgo);
     },
@@ -77,7 +76,7 @@ function App() {
         <p className="title-h1">Sorting Algorithms Visualizer</p>
         <p className="title-h2">github/allenfeng2014</p>
       </div>
-      <Numbers {...{ numbers, CANVAS_HEIGHT, colorGrey }} />
+      <Numbers {...{ numbers }} />
       <Buttons
         {...{
           speed,

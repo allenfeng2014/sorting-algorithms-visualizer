@@ -1,7 +1,9 @@
 import React from "react";
 import "../css/Numbers.css";
+import numBarsConstants from "../constants/numBarsConstants";
 
-function Numbers({ numbers, CANVAS_HEIGHT, colorGrey }) {
+function Numbers({ numbers }) {
+  const { CANVAS_HEIGHT, colorGrey } = numBarsConstants;
   return (
     <div className="numbers-container">
       {numbers.map((number, idx) => (
