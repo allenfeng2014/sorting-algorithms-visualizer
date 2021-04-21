@@ -33,6 +33,7 @@ const numBars = {
     });
     document.querySelector("#button-start").disabled = true;
 
+    console.log(CANVAS_HEIGHT, NUMBER_MAX, NUMBER_MIN);
     let newNumbers = [];
     for (let i = 0; i < numsTotal; i++) {
       let newNumber = Math.floor(

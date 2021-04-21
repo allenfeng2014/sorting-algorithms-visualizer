@@ -52,10 +52,11 @@ function App() {
     },
     setNumsTotal: () => {
       let value = document.querySelector("#input-numsTotal").value;
-      if (value > 0 && value <= 280) {
+      let numsTotalMax = Math.floor((window.innerWidth - 40) / 7);
+      if (value > 0 && value <= numsTotalMax) {
         setNumsTotal(value);
       } else {
-        alert("Please enter a number between 0 ~ 280");
+        alert(`Please enter a number between 0 ~ ${numsTotalMax}`);
       }
       buttons.reloadSettings();
     },

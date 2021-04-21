@@ -1,6 +1,6 @@
 .numbers-container {
   display: block;
-  height: 700px;
+  height: fit-content;
   text-align: center;
 }
 .number-bar {

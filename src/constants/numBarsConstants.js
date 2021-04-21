@@ -5,9 +5,9 @@ const numBarsConstants = {
   colorGrey: "rgb(224, 224, 224)",
   colorViolet: "rgb(220, 58, 252)",
   // design related constants
-  NUMBER_MAX: 690,
-  NUMBER_MIN: 10,
-  CANVAS_HEIGHT: 700, // NUMBER_MAX + NUMBER_MIN
+  NUMBER_MAX: Math.floor((window.innerHeight - 220) * 0.99),
+  NUMBER_MIN: Math.ceil((window.innerHeight - 220) * 0.01),
+  CANVAS_HEIGHT: window.innerHeight - 220,
 };
 
 export default numBarsConstants;
