@@ -12,8 +12,9 @@ import Animator from "./utils/animator";
 function App() {
   // state values
   const [numbers, setNumbers] = useState([]);
-  const [numsTotal, setNumsTotal] = useState(100);
-  const [sortingAlgo, setSortingAlgo] = useState("");
+  let numsTotalInit = Math.floor((window.innerWidth * 0.5 - 40) / 7);
+  const [numsTotal, setNumsTotal] = useState(numsTotalInit);
+  const [sortingAlgo, setSortingAlgo] = useState("bubbleSort");
   const [speed, setSpeed] = useState(25);
 
   // animator object
@@ -23,7 +24,7 @@ function App() {
   useEffect(() => {
     let newNumbers = numBars.resetNumbers(numsTotal);
     setNumbers(newNumbers);
-    setSortingAlgo("");
+    //setSortingAlgo("");
     buttons.disableSettingButtons(false);
   }, [numsTotal]);
 
@@ -37,7 +38,6 @@ function App() {
       setNumbers(newNumbers);
       animator.stop();
       animator.setNumbers(newNumbers);
-      setSortingAlgo("");
       buttons.disableSettingButtons(false);
     },
     setSpeed: () => {

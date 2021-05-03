@@ -6,9 +6,9 @@ import numBarsConstants from "../constants/numBarsConstants";
 class Animator {
   constructor() {
     this.animatorOn = false;
-    this.constants = numBarsConstants;
     this.numbers = [];
     this.speed = 25;
+    this.constants = numBarsConstants;
   }
 
   // setter methods
@@ -34,7 +34,6 @@ class Animator {
   };
   stop = () => {
     this.setAnimatorOn(false);
-    // setSortingAlgo("")
     buttons.disableSettingButtons(false);
   };
 

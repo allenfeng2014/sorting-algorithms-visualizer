@@ -18,9 +18,6 @@ const numBars = {
   },
   setBarHeight: function (idx, height) {
     let barStyle = document.querySelector(`#number${idx}`).style;
-    //console.log("target bar idx", idx);
-    //console.log("target bar original height", barStyle.height);
-    //console.log("target bar target height", height);
     barStyle.height = `${height}px`;
     barStyle.borderTopWidth = `${CANVAS_HEIGHT - height}px`;
   },
@@ -31,9 +28,7 @@ const numBars = {
         numBar.style.backgroundColor = colorBlue;
       }
     });
-    document.querySelector("#button-start").disabled = true;
 
-    console.log(CANVAS_HEIGHT, NUMBER_MAX, NUMBER_MIN);
     let newNumbers = [];
     for (let i = 0; i < numsTotal; i++) {
       let newNumber = Math.floor(
@@ -41,9 +36,6 @@ const numBars = {
       );
       newNumbers.push(newNumber);
     }
-    //setNumbers(newNumbers)
-    //setSortingAlgo("")
-    // buttons.disableSettingButtons(false)
 
     return newNumbers;
   },
