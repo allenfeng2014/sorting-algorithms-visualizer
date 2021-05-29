@@ -24,7 +24,6 @@ function App() {
   useEffect(() => {
     let newNumbers = numBars.resetNumbers(numsTotal);
     setNumbers(newNumbers);
-    //setSortingAlgo("");
     buttons.disableSettingButtons(false);
   }, [numsTotal]);
 
