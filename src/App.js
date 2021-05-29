@@ -41,7 +41,7 @@ function App() {
     },
     setSpeed: () => {
       let value = document.querySelector("#input-speed").value;
-      if (value > 0) {
+      if (value >= 0) {
         setSpeed(value);
       } else {
         alert("Please enter a number greater than 0");

@@ -23,11 +23,10 @@ function Buttons({ speed, numsTotal, sortingAlgoNames, handlers }) {
         Refresh
       </button>
 
-      {/*change textarea to input maybe ???*/}
       <textarea
         className="textarea-setting"
         id="input-speed"
-        placeholder={`${speed} ms`}
+        placeholder="0 ~ 5000"
       ></textarea>
       <button
         className="button-misc"
@@ -39,7 +38,7 @@ function Buttons({ speed, numsTotal, sortingAlgoNames, handlers }) {
       <textarea
         className="textarea-setting"
         id="input-numsTotal"
-        placeholder={numsTotal}
+        placeholder={`2 ~ ${Math.floor((window.innerWidth - 40) / 7)}`}
       ></textarea>
       <button
         className="button-misc"
